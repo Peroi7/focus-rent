@@ -538,8 +538,8 @@ if(!SR){
   document.getElementById('micHint').textContent='Glasovni unos nije podržan';
   document.getElementById('micBtn').style.opacity='0.4';
   document.getElementById('micBtn').style.cursor='not-allowed';
-} else {
-  if(isIOS) document.getElementById('micHint').textContent='Pritisni i govori (kratko)';
+} else if(isIOS){
+  document.getElementById('micHint').textContent='Pritisni i govori (kratko)';
 }
 
 function setStatus(cls,txt){
@@ -582,7 +582,6 @@ function toggleRecording(){
 }
 
 function startRecognitionInstance(){
-  // Uvijek stvaramo novi objekt — iOS WebKit zahtijeva to
   if(recognition){
     try{
       recognition.onstart=null;
@@ -595,28 +594,40 @@ function startRecognitionInstance(){
   }
 
   const r = new SR();
-  // Na iOS ne postavljamo lang — koristi sistemski jezik uređaja (jedino što sigurno radi)
-  // Na desktopu koristimo hr-HR
-  if(!isIOS) r.lang = 'hr-HR';
-  r.continuous = false;
-  r.interimResults = false;
-  r.maxAlternatives = 3; // više alternativa = bolje prepoznavanje
+  r.lang = 'hr-HR';
+  r.maxAlternatives = 1;
+
+  if(isIOS){
+    // iOS: continuous i interimResults MORAJU biti true da bi dobili tekst.
+    // Restart loop sa setTimeout ne radi jer iOS blokira start() izvan direktnog user gesta.
+    r.continuous = true;
+    r.interimResults = true;
+  } else {
+    r.continuous = true;
+    r.interimResults = true;
+  }
 
   r.onstart = () => { recognitionActive = true; };
 
   r.onresult = e => {
-    let text = '';
+    let finalText = '';
+    let interimText = '';
     for(let i = 0; i < e.results.length; i++){
       if(e.results[i].isFinal){
-        // uzmi prvu alternativu (najviši confidence)
-        text += e.results[i][0].transcript + ' ';
+        finalText += e.results[i][0].transcript + ' ';
+      } else {
+        interimText += e.results[i][0].transcript;
       }
     }
-    if(text.trim()){
-      fullTranscript += text;
+    // Na iOSu koristimo i interim tekst jer final može kasniti
+    const displayText = (fullTranscript + finalText + interimText).trim();
+    if(displayText){
       const el = document.getElementById('transcriptText');
-      el.textContent = fullTranscript.trim();
+      el.textContent = displayText;
       el.classList.remove('empty');
+    }
+    if(finalText.trim()){
+      fullTranscript += finalText;
       parseVoiceInput(fullTranscript.trim());
     }
   };
@@ -628,8 +639,9 @@ function startRecognitionInstance(){
       stopRecording();
       return;
     }
-    // no-speech, aborted, network — sve ignoriramo i restartamo
-    if(isRecording){
+    if(e.error === 'no-speech') return; // normalno, ignoriraj
+    // Na non-iOS pokušaj restart; na iOS ne restartamo (blokira se)
+    if(isRecording && !isIOS){
       clearTimeout(restartTimer);
       restartTimer = setTimeout(startRecognitionInstance, 300);
     }
@@ -637,10 +649,15 @@ function startRecognitionInstance(){
 
   r.onend = () => {
     recognitionActive = false;
-    // Ako još snimamo — odmah restart (iOS gasi session nakon svake rečenice)
-    if(isRecording){
+    // Na non-iOS: restart loop je OK jer nema restrikcije
+    // Na iOS: NE restartamo — iOS blokira start() iz setTimeout
+    if(isRecording && !isIOS){
       clearTimeout(restartTimer);
       restartTimer = setTimeout(startRecognitionInstance, 150);
+    } else if(isRecording && isIOS){
+      // iOS je ugasio sesiju (timeout ~60s ili tišina) — obavijesti korisnika
+      stopRecording();
+      showToast('Prepoznavanje završeno — provjeri tekst');
     }
   };
 
@@ -649,7 +666,7 @@ function startRecognitionInstance(){
     r.start();
   }catch(err){
     recognitionActive = false;
-    if(isRecording){
+    if(isRecording && !isIOS){
       clearTimeout(restartTimer);
       restartTimer = setTimeout(startRecognitionInstance, 400);
     }
