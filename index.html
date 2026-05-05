@@ -595,18 +595,22 @@ function startRecognitionInstance(){
   }
 
   const r = new SR();
-  // hr-HR nije podržan na iOS WebKit — koristimo hr koji iOS prihvaća
-  r.lang = isIOS ? 'hr' : 'hr-HR';
-  r.continuous = false;      // iOS ne podržava continuous — koristimo restart loop
-  r.interimResults = false;  // iOS interimResults pravi probleme
-  r.maxAlternatives = 1;
+  // Na iOS ne postavljamo lang — koristi sistemski jezik uređaja (jedino što sigurno radi)
+  // Na desktopu koristimo hr-HR
+  if(!isIOS) r.lang = 'hr-HR';
+  r.continuous = false;
+  r.interimResults = false;
+  r.maxAlternatives = 3; // više alternativa = bolje prepoznavanje
 
   r.onstart = () => { recognitionActive = true; };
 
   r.onresult = e => {
     let text = '';
     for(let i = 0; i < e.results.length; i++){
-      if(e.results[i].isFinal) text += e.results[i][0].transcript + ' ';
+      if(e.results[i].isFinal){
+        // uzmi prvu alternativu (najviši confidence)
+        text += e.results[i][0].transcript + ' ';
+      }
     }
     if(text.trim()){
       fullTranscript += text;
