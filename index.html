@@ -33,7 +33,7 @@ body{
   /* subtle noise texture */
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
 }
-
+ 
 /* ── HEADER ─────────────────────────────────────────────── */
 .header{
   background:var(--surface);
@@ -59,10 +59,10 @@ body{
   padding:3px 8px;border-radius:3px;
   background:var(--red-glow2);
 }
-
+ 
 /* ── APP WRAPPER ─────────────────────────────────────────── */
 .app{max-width:640px;margin:0 auto;padding:1rem 1rem 3rem}
-
+ 
 /* ── MIC SECTION ─────────────────────────────────────────── */
 .mic-section{
   display:flex;flex-direction:column;align-items:center;
@@ -80,7 +80,7 @@ body{
 .mic-ring-pulse.active{animation:mpulse 1.3s ease-out infinite}
 .mic-ring-pulse2.active{animation:mpulse 1.3s 0.45s ease-out infinite}
 @keyframes mpulse{0%{opacity:0.6;transform:scale(0.94)}100%{opacity:0;transform:scale(1.18)}}
-
+ 
 .mic-btn{
   width:88px;height:88px;border-radius:50%;
   border:2px solid var(--border);
@@ -98,7 +98,7 @@ body{
 }
 .mic-icon{width:30px;height:30px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round;transition:stroke 0.2s}
 .mic-btn.recording .mic-icon{stroke:var(--red)}
-
+ 
 .wave-container{display:flex;align-items:center;justify-content:center;gap:3px;height:22px}
 .wave-bar{width:3px;border-radius:2px;background:var(--muted2);height:3px;transition:background 0.2s}
 .recording .wave-bar{background:var(--red);animation:wave 0.55s ease-in-out infinite}
@@ -107,9 +107,9 @@ body{
 .wave-bar:nth-child(5){animation-delay:0.28s}.wave-bar:nth-child(6){animation-delay:0.14s}
 .wave-bar:nth-child(7){animation-delay:0.07s}
 @keyframes wave{0%,100%{height:3px}50%{height:16px}}
-
+ 
 .mic-hint{font-size:12px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase}
-
+ 
 /* ── STATUS ──────────────────────────────────────────────── */
 .status-bar{
   display:flex;align-items:center;gap:8px;
@@ -122,7 +122,7 @@ body{
 .status-dot.processing{background:#f59e0b}
 .status-dot.done{background:var(--success)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
-
+ 
 /* ── HELPER ──────────────────────────────────────────────── */
 .helper{
   background:var(--red-glow2);
@@ -134,7 +134,7 @@ body{
   font-size:13px;color:#ccc;line-height:1.75;
 }
 .helper strong{color:var(--red);font-weight:500}
-
+ 
 /* ── TRANSCRIPT ──────────────────────────────────────────── */
 .transcript-box{
   background:var(--surface);
@@ -152,7 +152,7 @@ body{
 }
 .transcript-text{font-size:14px;color:var(--text);line-height:1.5;min-height:22px}
 .transcript-text.empty{color:var(--muted);font-style:italic}
-
+ 
 /* ── FIELDS ──────────────────────────────────────────────── */
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
 .field{
@@ -176,7 +176,7 @@ body{
 .field input::placeholder{color:var(--muted2);font-weight:300}
 .field.filled{border-color:var(--red);background:var(--red-glow2)}
 .field-readonly input{color:var(--muted)}
-
+ 
 /* ── SIGNER BTNS ─────────────────────────────────────────── */
 .signer-btns{display:flex;gap:8px}
 .signer-btn{
@@ -189,7 +189,7 @@ body{
 }
 .signer-btn:active{transform:scale(0.96)}
 .signer-btn.active{border-color:var(--red);background:var(--red-glow);color:var(--text);font-weight:500}
-
+ 
 /* ── PREVIEW ─────────────────────────────────────────────── */
 .preview-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;margin-bottom:1rem}
 .preview-cell{
@@ -199,7 +199,7 @@ body{
   padding:2px 7px;transition:all 0.2s;
 }
 .preview-cell.has-value{background:var(--red-glow2);color:var(--text);border-color:var(--red-dim)}
-
+ 
 /* ── ACTIONS ─────────────────────────────────────────────── */
 .actions{display:flex;gap:8px;margin-bottom:1rem}
 .btn{
@@ -224,7 +224,7 @@ body{
   cursor:not-allowed;border-color:var(--border);
   box-shadow:none;
 }
-
+ 
 /* ── SHEET CONFIG ────────────────────────────────────────── */
 .sheet-config{
   background:var(--surface);border:1px solid var(--border);
@@ -257,7 +257,7 @@ body{
 }
 .copy-btn:hover{border-color:var(--red);color:var(--red)}
 .copy-btn:active{transform:scale(0.96)}
-
+ 
 /* ── SCRIPT SECTION ──────────────────────────────────────── */
 .script-section{
   background:var(--surface);border:1px solid var(--border);
@@ -276,7 +276,7 @@ body{
   line-height:1.55;margin-bottom:0.5rem;
   max-height:220px;overflow-y:auto;
 }
-
+ 
 /* ── LOG ─────────────────────────────────────────────────── */
 .log{
   background:var(--surface);border:1px solid var(--border);
@@ -304,7 +304,7 @@ body{
   letter-spacing:0.05em;text-transform:uppercase;
 }
 .empty-log{padding:1.5rem;text-align:center;color:var(--muted);font-size:13px}
-
+ 
 /* ── DIVIDER ─────────────────────────────────────────────── */
 .section-divider{
   display:flex;align-items:center;gap:10px;
@@ -318,7 +318,7 @@ body{
 .section-divider::before,.section-divider::after{
   content:'';flex:1;height:1px;background:var(--border);
 }
-
+ 
 /* ── TOAST ───────────────────────────────────────────────── */
 .toast{
   position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%);
@@ -332,7 +332,7 @@ body{
   box-shadow:0 4px 20px rgba(227,28,35,0.15);
 }
 .toast.show{opacity:1}
-
+ 
 /* ── SCROLLBAR ───────────────────────────────────────────── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
@@ -340,14 +340,14 @@ body{
 </style>
 </head>
 <body>
-
+ 
 <div class="header">
   <div class="header-logo">FOCUS <span>RENT A CAR</span></div>
   <div class="header-badge">VOICE ENTRY</div>
 </div>
-
+ 
 <div class="app">
-
+ 
   <div class="mic-section">
     <div class="mic-ring">
       <div class="mic-ring-pulse" id="pulse1"></div>
@@ -368,22 +368,22 @@ body{
     </div>
     <div class="mic-hint" id="micHint">Pritisni i govori</div>
   </div>
-
+ 
   <div class="status-bar">
     <div class="status-dot" id="statusDot"></div>
     <span id="statusText">Spreman za unos</span>
   </div>
-
+ 
   <div class="helper">
     <strong>Primjer:</strong> "Fiat Ducato, Ante Anić, od 21.5 do 21.6"<br>
     Ili redom: vozilo → ime → prezime → period
   </div>
-
+ 
   <div class="transcript-box">
     <div class="tag">Prepoznati tekst</div>
     <div class="transcript-text empty" id="transcriptText">Ovdje će se prikazati što si rekao...</div>
   </div>
-
+ 
   <div class="fields">
     <div class="field full" id="fSheet">
       <label>Vozilo (naziv lista)</label>
@@ -413,7 +413,7 @@ body{
       <input type="text" id="fTodayVal" readonly>
     </div>
   </div>
-
+ 
   <div>
     <div class="tag">Pregled retka</div>
     <div class="preview-row">
@@ -424,7 +424,7 @@ body{
       <span class="preview-cell" id="prToday">DATUM UNOŠENJA</span>
     </div>
   </div>
-
+ 
   <div class="actions">
     <button class="btn" onclick="clearAll()">Obriši</button>
     <button class="btn btn-primary" id="sendBtn" disabled onclick="sendToSheets()">
@@ -432,9 +432,9 @@ body{
       POŠALJI U SHEETS
     </button>
   </div>
-
+ 
   <div class="section-divider"><span>Konfiguracija</span></div>
-
+ 
   <div class="sheet-config">
     <h3>Web App URL</h3>
     <div class="sheet-input-row">
@@ -444,15 +444,15 @@ body{
     <p style="font-size:12px;color:var(--muted);margin-top:8px">Unesi jednom — ostaje zapamćeno u pregledniku.</p>
     <button class="copy-btn" style="margin-top:8px;width:100%;padding:0.6rem" onclick="toggleScript()">Prikaži Apps Script kod</button>
   </div>
-
+ 
   <div id="scriptSection" style="display:none" class="script-section">
     <h3>Apps Script kod</h3>
     <div class="code-block" id="scriptCode"></div>
     <button class="copy-btn" style="width:100%;padding:0.6rem" onclick="copyScript()">Kopiraj kod</button>
   </div>
-
+ 
   <div class="section-divider"><span>Zapis unosa</span></div>
-
+ 
   <div class="log">
     <div class="log-header">
       <span>Zapis</span>
@@ -460,10 +460,10 @@ body{
     </div>
     <div id="logEntries"><div class="empty-log">Još nema unosa</div></div>
   </div>
-
+ 
 </div>
 <div class="toast" id="toast"></div>
-
+ 
 <script>
 const SCRIPT_CODE = `function doPost(e) {
   try {
@@ -494,9 +494,9 @@ const SCRIPT_CODE = `function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({status:'error', message: err.toString()})).setMimeType(ContentService.MimeType.JSON);
   }
 }`;
-
+ 
 document.getElementById('scriptCode').textContent = SCRIPT_CODE;
-
+ 
 const VOZILA = [
   'fiat ducato','fiat punto','fiat','ducato','punto',
   'golf','passat','polo','tiguan','touareg','caddy',
@@ -506,14 +506,14 @@ const VOZILA = [
   'transit','sprinter','vito','master','jumper','boxer',
   'hyundai','kia','mazda','nissan','volvo','subaru','jeep','dacia'
 ];
-
+ 
 const POZNATA_IMENA = [
   'ante','ivan','marko','mario','josip','tomislav','stjepan','nikola','luka','mateo',
   'petar','damir','boris','branko','dragan','goran','igor','krešimir','kreso','mirko',
   'nenad','robert','sanja','maja','ana','marina','ivana','petra','marija','nina',
   'sandra','vesna','andrea','katarina','martina','irena','gordana','dijana','helena'
 ];
-
+ 
 let recognition = null;
 let isRecording = false;
 let fullTranscript = '';
@@ -521,28 +521,27 @@ let currentSigner = '';
 let logData = [];
 let webhookUrl = '';
 let restartTimer = null;
-let isRestarting = false;
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+let recognitionActive = false;
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 try { webhookUrl = localStorage.getItem('rac_webhook') || ''; } catch(e){}
 if(webhookUrl) document.getElementById('webhookUrl').value = webhookUrl;
-
+ 
 function getTodayStr(){
   const d=new Date();
   return d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getFullYear();
 }
 document.getElementById('fTodayVal').value = getTodayStr();
 updatePreview();
-
+ 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if(!SR){
   document.getElementById('micHint').textContent='Glasovni unos nije podržan';
   document.getElementById('micBtn').style.opacity='0.4';
   document.getElementById('micBtn').style.cursor='not-allowed';
 } else if(isIOS){
-  document.getElementById('micHint').textContent='Pritisni — iOS mod';
+  document.getElementById('micHint').textContent='Pritisni i govori (kratko)';
 }
-
+ 
 function setStatus(cls,txt){
   document.getElementById('statusDot').className='status-dot '+cls;
   document.getElementById('statusText').textContent=txt;
@@ -581,108 +580,126 @@ function toggleRecording(){
   if(!SR){showToast('Preglednik ne podržava glasovni unos');return;}
   if(isRecording)stopRecording();else startRecording();
 }
-function createRecognition(){
+ 
+function startRecognitionInstance(){
+  // Uvijek stvaramo novi objekt — iOS WebKit zahtijeva to
   if(recognition){
-    try{recognition.onresult=null;recognition.onerror=null;recognition.onend=null;recognition.abort();}catch(e){}
+    try{
+      recognition.onstart=null;
+      recognition.onresult=null;
+      recognition.onerror=null;
+      recognition.onend=null;
+      recognition.abort();
+    }catch(e){}
     recognition=null;
   }
-  const r=new SR();
-  r.lang='hr-HR';
-  // Na mobitelu continuous i interimResults mogu praviti probleme
-  r.continuous = !isIOS; // iOS ne podržava continuous kako treba
-  r.interimResults = !isIOS; // iOS interimResults nestabilni
-  r.maxAlternatives=1;
-
-  r.onresult=e=>{
-    let interim='',final='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal){
-        final+=e.results[i][0].transcript+' ';
-      } else {
-        interim+=e.results[i][0].transcript;
-      }
+ 
+  const r = new SR();
+  r.lang = 'hr-HR';
+  r.continuous = false;      // iOS ne podržava continuous — koristimo restart loop
+  r.interimResults = false;  // iOS interimResults pravi probleme, ne trebamo ih
+  r.maxAlternatives = 1;
+ 
+  r.onstart = () => { recognitionActive = true; };
+ 
+  r.onresult = e => {
+    let text = '';
+    for(let i = 0; i < e.results.length; i++){
+      if(e.results[i].isFinal) text += e.results[i][0].transcript + ' ';
     }
-    if(final){
-      fullTranscript+=final;
+    if(text.trim()){
+      fullTranscript += text;
+      const el = document.getElementById('transcriptText');
+      el.textContent = fullTranscript.trim();
+      el.classList.remove('empty');
       parseVoiceInput(fullTranscript.trim());
     }
-    const shown=(fullTranscript+(interim?' ['+interim+']':'')).trim();
-    const el=document.getElementById('transcriptText');
-    if(shown){el.textContent=shown;el.classList.remove('empty');}
   };
-
-  r.onerror=e=>{
-    if(e.error==='no-speech'){
-      // Na mobitelu no-speech je normalno, restart ako još snimamo
-      if(isRecording&&!isRestarting)restartRecognition();
+ 
+  r.onerror = e => {
+    recognitionActive = false;
+    if(e.error === 'not-allowed'){
+      showToast('Dozvoli mikrofon u postavkama!');
+      stopRecording();
       return;
     }
-    if(e.error==='aborted')return;
-    showToast('Greška mikrofona: '+e.error);
-    stopRecording();
-  };
-
-  r.onend=()=>{
-    if(isRecording&&!isRestarting){
-      restartRecognition();
+    // no-speech, aborted, network — sve ignoriramo i restartamo
+    if(isRecording){
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(startRecognitionInstance, 300);
     }
   };
-
-  return r;
-}
-function restartRecognition(){
-  if(!isRecording||isRestarting)return;
-  isRestarting=true;
-  clearTimeout(restartTimer);
-  restartTimer=setTimeout(()=>{
-    if(!isRecording){isRestarting=false;return;}
-    recognition=createRecognition();
-    try{
-      recognition.start();
-    }catch(err){
-      // already started ili druga greška
+ 
+  r.onend = () => {
+    recognitionActive = false;
+    // Ako još snimamo — odmah restart (iOS gasi session nakon svake rečenice)
+    if(isRecording){
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(startRecognitionInstance, 150);
     }
-    isRestarting=false;
-  }, isMobile ? 250 : 100);
+  };
+ 
+  recognition = r;
+  try{
+    r.start();
+  }catch(err){
+    // start() može baciti grešku ako je već active
+    recognitionActive = false;
+    if(isRecording){
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(startRecognitionInstance, 400);
+    }
+  }
 }
-function initRecognition(){
-  recognition=createRecognition();
-}
+ 
 function startRecording(){
-  initRecognition();
   document.getElementById('micBtn').classList.add('recording');
   document.getElementById('waveContainer').classList.add('recording');
   document.getElementById('pulse1').classList.add('active');
   document.getElementById('pulse2').classList.add('active');
-  document.getElementById('micHint').textContent='Slušam...';
-  isRecording=true;isRestarting=false;fullTranscript='';
+  document.getElementById('micHint').textContent = isIOS ? 'Slušam... (govori kratko)' : 'Slušam...';
+  isRecording = true;
+  recognitionActive = false;
+  fullTranscript = '';
   setStatus('listening','Slušam... govori sada');
-  try{recognition.start();}catch(e){showToast('Ne mogu pokrenuti mikrofon');}
+  startRecognitionInstance();
 }
+ 
 function stopRecording(){
-  isRecording=false;isRestarting=false;
+  isRecording = false;
+  recognitionActive = false;
   clearTimeout(restartTimer);
+ 
+  if(recognition){
+    try{
+      recognition.onstart = null;
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      recognition.stop();
+    }catch(e){}
+    recognition = null;
+  }
+ 
   document.getElementById('micBtn').classList.remove('recording');
   document.getElementById('waveContainer').classList.remove('recording');
   document.getElementById('pulse1').classList.remove('active');
   document.getElementById('pulse2').classList.remove('active');
-  document.getElementById('micHint').textContent='Pritisni i govori';
-  if(recognition){
-    try{recognition.onresult=null;recognition.onerror=null;recognition.onend=null;recognition.stop();}catch(e){}
-    recognition=null;
-  }
+  document.getElementById('micHint').textContent = 'Pritisni i govori';
   setStatus('processing','Obrađujem...');
+ 
   setTimeout(()=>{
-    if(fullTranscript.trim())parseVoiceInput(fullTranscript.trim());
-    checkReady();setStatus('done','Provjeri i pošalji');
-  },300);
+    if(fullTranscript.trim()) parseVoiceInput(fullTranscript.trim());
+    checkReady();
+    setStatus('done','Provjeri i pošalji');
+  }, 200);
 }
 function capFirst(s){return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase();}
-
+ 
 function parseVoiceInput(rawText){
   const text=rawText.trim();
   const tl=text.toLowerCase();
-
+ 
   const sortedVozila=[...VOZILA].sort((a,b)=>b.length-a.length);
   let foundVozilo='',voziloPocetakIdx=-1,voziloKrajIdx=-1;
   for(const v of sortedVozila){
@@ -693,14 +710,14 @@ function parseVoiceInput(rawText){
     document.getElementById('fSheetName').value=foundVozilo.toUpperCase();
     document.getElementById('fSheet').classList.add('filled');
   }
-
+ 
   let textBezVozila=text;
   if(foundVozilo){textBezVozila=text.slice(0,voziloPocetakIdx)+' '+text.slice(voziloKrajIdx);}
-
+ 
   const yr=new Date().getFullYear();
   const dayWords={'dvadeset prvog':'21','dvadeset drugog':'22','dvadeset trećeg':'23','dvadeset četvrtog':'24','dvadeset petog':'25','dvadeset šestog':'26','dvadeset sedmog':'27','dvadeset osmog':'28','dvadeset devetog':'29','trideset prvog':'31','tridesetog':'30','trideseto':'30','devetnaestog':'19','osamnaestog':'18','sedamnaestog':'17','šesnaestog':'16','petnaestog':'15','četrnaestog':'14','trinaestog':'13','dvanaestog':'12','jedanaestog':'11','desetog':'10','devetog':'09','osmog':'08','sedmog':'07','šestog':'06','petog':'05','četvrtog':'04','trećeg':'03','drugog':'02','prvog':'01'};
   const monthWords={'siječnja':'01','januara':'01','veljače':'02','februara':'02','ožujka':'03','marta':'03','travnja':'04','aprila':'04','svibnja':'05','maja':'05','lipnja':'06','juna':'06','srpnja':'07','jula':'07','kolovoza':'08','avgusta':'08','rujna':'09','septembra':'09','listopada':'10','oktobra':'10','studenoga':'11','novembra':'11','prosinca':'12','decembra':'12'};
-
+ 
   function parseOneDate(s){
     s=s.trim();
     const nm=s.match(/(\d{1,2})[.\-\/\s](\d{1,2})(?:[.\-\/\s](\d{2,4}))?/);
@@ -711,7 +728,7 @@ function parseVoiceInput(rawText){
     if(day&&month)return `${day}.${month}.${yr}`;
     return '';
   }
-
+ 
   let dateFrom='',dateTo='';
   const rangeRx=/od\s+(.+?)\s+(?:do|prema|zaključno)\s+(.+?)(?:\s*$|,|\bime\b|\bpotpisao\b)/i;
   const rm=textBezVozila.match(rangeRx);
@@ -725,16 +742,16 @@ function parseVoiceInput(rawText){
     document.getElementById('fRentVal').value=val;
     document.getElementById('fRent').classList.add('filled');
   }
-
+ 
   let textZaIme=textBezVozila;
   if(rm)textZaIme=textZaIme.replace(rm[0],'');
   textZaIme=textZaIme.replace(/\d{1,2}[.\-\/]\d{1,2}(?:[.\-\/]\d{2,4})?/g,'');
-
+ 
   if(tl.includes('krešo')||tl.includes('kreso')||tl.includes('kreši')||tl.includes('kreše'))setSigner('Krešo');
   else if(tl.includes('perica')||tl.includes('perić'))setSigner('Perica');
-
+ 
   const skipWords=new Set([...foundVozilo.toLowerCase().split(' '),'fiat','ducato','golf','bmw','mercedes','audi','ford','opel','toyota','datum','renta','rentanja','od','do','ime','prezime','potpisao','potpisala','krešo','kreso','perica','perić','od','do','za','na','u','i','s','sa','iz']);
-
+ 
   let ime='',prezime='';
   const imeExRx=/\bime\s+([A-ZŠĐČĆŽa-zšđčćž]+)/i;
   const prezExRx=/\bprezime\s+([A-ZŠĐČĆŽa-zšđčćž]+)/i;
@@ -742,26 +759,26 @@ function parseVoiceInput(rawText){
   const prezM=textZaIme.match(prezExRx);
   if(imeM)ime=capFirst(imeM[1]);
   if(prezM)prezime=capFirst(prezM[1]);
-
+ 
   if(!ime){for(const n of POZNATA_IMENA){const rx=new RegExp('\\b'+n+'\\b','i');if(rx.test(textZaIme)){ime=capFirst(n);break;}}}
-
+ 
   if(!ime||!prezime){
     const caps=[...textZaIme.matchAll(/\b([A-ZŠĐČĆŽ][a-zšđčćž]{1,})\b/g)].map(m=>m[1]).filter(w=>!skipWords.has(w.toLowerCase()));
     if(!ime&&caps.length>0)ime=caps[0];
     if(!prezime&&caps.length>1)prezime=caps[1];
     if(!prezime&&caps.length===1&&ime&&ime.toLowerCase()!==caps[0].toLowerCase())prezime=caps[0];
   }
-
+ 
   const imePolje=document.getElementById('fImeVal');
   const prezPolje=document.getElementById('fPrezimeVal');
   if(imeM){imePolje.value=ime;document.getElementById('fIme').classList.add('filled');}
   else if(ime&&!imePolje.value.trim()){imePolje.value=ime;document.getElementById('fIme').classList.add('filled');}
   if(prezM){prezPolje.value=prezime;document.getElementById('fPrezime').classList.add('filled');}
   else if(prezime&&!prezPolje.value.trim()){prezPolje.value=prezime;document.getElementById('fPrezime').classList.add('filled');}
-
+ 
   checkReady();
 }
-
+ 
 function clearAll(){
   ['fSheetName','fImeVal','fPrezimeVal','fRentVal'].forEach(id=>document.getElementById(id).value='');
   ['fSheet','fIme','fPrezime','fRent','fSigner'].forEach(id=>document.getElementById(id).classList.remove('filled'));
@@ -774,7 +791,7 @@ function clearAll(){
   document.getElementById('sendBtn').disabled=true;
   updatePreview();
 }
-
+ 
 function saveWebhook(){
   const url=document.getElementById('webhookUrl').value.trim();
   if(url){try{localStorage.setItem('rac_webhook',url);}catch(e){}webhookUrl=url;showToast('URL spremljen!');}
@@ -784,7 +801,7 @@ function toggleScript(){
   s.style.display=s.style.display==='none'?'block':'none';
 }
 function copyScript(){navigator.clipboard.writeText(SCRIPT_CODE).then(()=>showToast('Kod kopiran!'));}
-
+ 
 async function sendToSheets(){
   const sheetName=document.getElementById('fSheetName').value.trim();
   const ime=document.getElementById('fImeVal').value.trim();
@@ -808,7 +825,7 @@ async function sendToSheets(){
   addLog(sheetName,ime,prezime,datumRentanja,potpisao);
   clearAll();
 }
-
+ 
 function addLog(sheet,ime,prezime,rent,sign){
   const now=new Date();
   const time=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
@@ -832,3 +849,4 @@ function renderLog(){
 </script>
 </body>
 </html>
+ 
