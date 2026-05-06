@@ -127,6 +127,13 @@ body{
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.vehicle-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);}
+.vehicle-row:last-child{border-bottom:none}
+.vehicle-row-name{font-size:13px;font-weight:500;color:var(--text);min-width:120px;flex-shrink:0}
+.vehicle-row-url{font-size:11px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vrow-del{background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0;transition:color 0.15s}
+.vrow-del:hover{color:var(--red)}
 </style>
 </head>
 <body>
@@ -226,12 +233,10 @@ body{
   <div class="section-divider"><span>Konfiguracija</span></div>
 
   <div class="sheet-config">
-    <h3>Web App URL</h3>
-    <div class="sheet-input-row">
-      <input class="sheet-input" type="url" id="webhookUrl" placeholder="https://script.google.com/macros/s/.../exec" inputmode="url">
-      <button class="copy-btn" onclick="saveWebhook()">Spremi</button>
-    </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:8px">Unesi jednom — ostaje zapamćeno u pregledniku.</p>
+    <h3>Vozila i linkovi</h3>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Unesi naziv lista (točno kao u tablici) i Web App URL za svako vozilo.</p>
+    <div id="vehicleRows"></div>
+    <button class="copy-btn" style="width:100%;padding:0.6rem;margin-top:8px" onclick="addVehicleRow()">+ Dodaj vozilo</button>
     <button class="copy-btn" style="margin-top:8px;width:100%;padding:0.6rem" onclick="toggleScript()">Prikaži Apps Script kod</button>
   </div>
 
@@ -367,12 +372,9 @@ let isRecording = false;
 let finalTranscript = '';
 let currentSigner = '';
 let logData = [];
-let webhookUrl = '';
 let restartTimer = null;
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-try { webhookUrl = localStorage.getItem('rac_webhook') || ''; } catch(e){}
-if(webhookUrl) document.getElementById('webhookUrl').value = webhookUrl;
 
 function getTodayStr(){
   const d=new Date();
@@ -725,10 +727,62 @@ function clearAll(){
   updatePreview();
 }
 
-function saveWebhook(){
-  const url=document.getElementById('webhookUrl').value.trim();
-  if(url){ try{localStorage.setItem('rac_webhook',url);}catch(e){} webhookUrl=url; showToast('URL spremljen!'); }
+// ── Vozilo→URL mapa ─────────────────────────────────────────────────
+let vehicleMap = {}; // { "GOLF 8 BIJELI": "https://...", ... }
+
+function loadVehicleMap(){
+  try {
+    const saved = localStorage.getItem('rac_vehicles');
+    vehicleMap = saved ? JSON.parse(saved) : {};
+  } catch(e){ vehicleMap = {}; }
 }
+function saveVehicleMap(){
+  try { localStorage.setItem('rac_vehicles', JSON.stringify(vehicleMap)); } catch(e){}
+}
+function renderVehicleRows(){
+  const container = document.getElementById('vehicleRows');
+  const entries = Object.entries(vehicleMap);
+  if(!entries.length){
+    container.innerHTML = '<p style="font-size:12px;color:var(--muted);text-align:center;padding:8px 0">Nema vozila — dodaj prvo vozilo</p>';
+    return;
+  }
+  container.innerHTML = entries.map(([name, url], i) => `
+    <div class="vehicle-row" id="vrow-${i}">
+      <div class="vehicle-row-name">${name}</div>
+      <div class="vehicle-row-url">${url ? url.slice(0,38)+'...' : '— bez URL-a —'}</div>
+      <button class="vrow-del" onclick="deleteVehicleRow('${name.replace(/'/g,"\'")}')">✕</button>
+    </div>`).join('');
+}
+function addVehicleRow(){
+  const name = prompt('Naziv lista (npr. GOLF 8 BIJELI):');
+  if(!name || !name.trim()) return;
+  const url = prompt('Web App URL za ' + name.trim() + ':');
+  vehicleMap[name.trim().toUpperCase()] = (url || '').trim();
+  saveVehicleMap();
+  renderVehicleRows();
+  showToast('Vozilo dodano!');
+}
+function deleteVehicleRow(name){
+  if(!confirm('Obriši ' + name + '?')) return;
+  delete vehicleMap[name];
+  saveVehicleMap();
+  renderVehicleRows();
+}
+
+function getUrlForVehicle(sheetName){
+  const key = sheetName.toUpperCase().trim();
+  // 1. Točno poklapanje
+  if(vehicleMap[key]) return vehicleMap[key];
+  // 2. Parcijalno — pronađi unos čiji naziv sadrži sheetName ili obratno
+  for(const [k, v] of Object.entries(vehicleMap)){
+    if(k.includes(key) || key.includes(k)) return v;
+  }
+  return null;
+}
+
+loadVehicleMap();
+renderVehicleRows();
+
 function toggleScript(){
   const s=document.getElementById('scriptSection');
   s.style.display=s.style.display==='none'?'block':'none';
@@ -742,16 +796,16 @@ async function sendToSheets(){
   const datumRentanja = document.getElementById('fRentVal').value.trim();
   const potpisao    = currentSigner;
   const datumUnosenja = getTodayStr();
-  const url = document.getElementById('webhookUrl').value.trim() || webhookUrl;
 
   if(!ime)       { showToast('Nedostaje ime'); return; }
   if(!sheetName) { showToast('Nedostaje naziv vozila'); return; }
 
+  const url = getUrlForVehicle(sheetName);
   const payload = {sheetName, ime, prezime, datumRentanja, potpisao, datumUnosenja};
 
   if(url){
     try{
-      setStatus('processing','Šaljem...');
+      setStatus('processing','Šaljem u ' + sheetName + '...');
       document.getElementById('sendBtn').disabled=true;
       await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       showToast('Poslano u '+sheetName+'!');
@@ -763,8 +817,10 @@ async function sendToSheets(){
       return;
     }
   } else {
-    showToast('Lokalno zapisano');
-    setStatus('done','Lokalno zapisano');
+    showToast('⚠ Nema URL-a za: '+sheetName);
+    setStatus('','Dodaj URL u konfiguraciji');
+    document.getElementById('sendBtn').disabled=false;
+    return;
   }
 
   addLog(sheetName, ime, prezime, datumRentanja, potpisao);
