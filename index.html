@@ -165,8 +165,8 @@ body{
   </div>
 
   <div class="helper">
-    <strong>Primjer:</strong> "Fiat Ducato, Ante Anić, od 21.5 do 21.6"<br>
-    Ili redom: vozilo → ime → prezime → period → potpisao Krešo/Perica
+    <strong>Primjer:</strong> "Golf 8 bijeli, Ante Anić, od 21.5 do 21.6"<br>
+    Ili: "Fiat Ducato kombi, Marko Horvat, od 1.6 do 15.6, potpisao Krešo"
   </div>
 
   <div class="transcript-box">
@@ -287,15 +287,37 @@ const SCRIPT_CODE = `function doPost(e) {
 
 document.getElementById('scriptCode').textContent = SCRIPT_CODE;
 
-const VOZILA = [
-  'fiat ducato','fiat punto','fiat','ducato','punto',
+// ── Baza vozila — samo "korijeni", modifikatori se hvataju automatski ──
+const VOZILA_BAZA = [
+  'fiat ducato','fiat punto','fiat',
+  'volkswagen golf','volkswagen passat','volkswagen polo','volkswagen tiguan','volkswagen touareg','volkswagen caddy',
+  'vw golf','vw passat','vw polo',
   'golf','passat','polo','tiguan','touareg','caddy',
   'bmw','mercedes','audi','toyota','honda','ford','opel',
   'škoda','skoda','renault','peugeot','seat','citroen','citroën',
   'octavia','fabia','leon','clio','corsa','yaris','fiesta','focus',
   'transit','sprinter','vito','master','jumper','boxer',
-  'hyundai','kia','mazda','nissan','volvo','subaru','jeep','dacia'
+  'hyundai','kia','mazda','nissan','volvo','subaru','jeep','dacia',
+  'ducato','punto'
 ];
+
+// Riječi koje NISU dio naziva vozila (zaustavljaju hvat modifikatora)
+const STOP_VOZILO = new Set([
+  'od','do','za','na','u','i','s','sa','iz','ime','prezime',
+  'potpisao','potpisala','datum','renta','rentanja','janvier',
+  'krešo','kreso','perica','perić'
+]);
+
+// Boje i tipovi koji su dio naziva vozila
+const VOZILO_MODIFIKATORI = new Set([
+  'bijeli','bijela','bijelo','crni','crna','crno','sivi','siva','sivo',
+  'crveni','crvena','crveno','plavi','plava','plavo','zeleni','zelena','zeleno',
+  'žuti','žuta','žuto','narančasti','narančasta','srebrni','srebrna','srebrno',
+  'crno bijeli','kombi','van','pickup','karavan','limuzina','hatchback',
+  '1','2','3','4','5','6','7','8','9',
+  'jedan','dva','tri','četiri','pet','šest','sedam','osam','devet',
+  'plus','gt','gti','tdi','tsi','hdi','crdi','bluehdi','jtd'
+]);
 
 const POZNATA_IMENA = [
   'ante','ivan','marko','mario','josip','tomislav','stjepan','nikola','luka','mateo',
@@ -306,7 +328,7 @@ const POZNATA_IMENA = [
 
 let recognition = null;
 let isRecording = false;
-let finalTranscript = '';   // samo finalni tekst
+let finalTranscript = '';
 let currentSigner = '';
 let logData = [];
 let webhookUrl = '';
@@ -386,31 +408,23 @@ function startRecognitionInstance(){
   r.interimResults = true;
 
   r.onresult = e => {
-    // Skupi sve finale do sada
     let newFinal = '';
     for(let i = 0; i < e.results.length; i++){
       if(e.results[i].isFinal){
         newFinal += e.results[i][0].transcript + ' ';
       }
     }
-    // Zadnji interim (može biti prazan)
     let interim = '';
     const last = e.results[e.results.length - 1];
     if(!last.isFinal) interim = last[0].transcript;
 
-    // Ažuriraj finalTranscript samo s novim finalom
     finalTranscript = newFinal;
-
-    // Prikaži: final + interim zajedno
     const display = (newFinal + interim).trim();
     if(display){
       const el = document.getElementById('transcriptText');
       el.textContent = display;
       el.classList.remove('empty');
     }
-
-    // *** KLJUČNO: parsiramo SVAKI PUT — i na interimima ***
-    // Koristimo full display tekst (final + interim) za što bolji real-time parse
     parseVoiceInput(display);
   };
 
@@ -489,30 +503,61 @@ function stopRecording(){
 
 function capFirst(s){ return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
 
+// ── NOVO: hvata vozilo + modifikatore iza njega ──────────────────────
+function extractVoziloWithModifiers(tl) {
+  // Sortiraj po duljini (najdulje prvo) da uhvati "fiat ducato" prije "fiat"
+  const sorted = [...VOZILA_BAZA].sort((a,b) => b.length - a.length);
+
+  for(const v of sorted) {
+    const idx = tl.indexOf(v);
+    if(idx === -1) continue;
+
+    // Tekst iza vozila
+    const after = tl.slice(idx + v.length).trim();
+    const words = after.split(/\s+/);
+
+    // Skupi modifikatore koji direktno slijede (do prve stop-riječi ili zareza)
+    const modParts = [];
+    for(const w of words) {
+      const clean = w.replace(/[,\.]/g,'');
+      if(!clean) continue;
+      if(STOP_VOZILO.has(clean)) break;
+      if(/^\d+$/.test(clean)) { modParts.push(clean); continue; } // brojevi (golf 8)
+      if(VOZILO_MODIFIKATORI.has(clean)) { modParts.push(clean); continue; }
+      // Nepoznata riječ koja nije modifikator — stani
+      break;
+    }
+
+    const fullVozilo = (v + (modParts.length ? ' ' + modParts.join(' ') : '')).trim();
+    return {
+      foundVozilo: v,
+      fullVozilo,
+      startIdx: idx,
+      endIdx: idx + v.length + (modParts.length ? 1 + modParts.join(' ').length : 0)
+    };
+  }
+  return null;
+}
+
 function parseVoiceInput(rawText){
   const text = rawText.trim();
   if(!text) return;
   const tl = text.toLowerCase();
 
   // ── VOZILO ──────────────────────────────────────────────
-  const sortedVozila = [...VOZILA].sort((a,b) => b.length - a.length);
-  let foundVozilo = '', voziloPocetakIdx = -1, voziloKrajIdx = -1;
-  for(const v of sortedVozila){
-    const idx = tl.indexOf(v);
-    if(idx !== -1){ foundVozilo=v; voziloPocetakIdx=idx; voziloKrajIdx=idx+v.length; break; }
-  }
-  if(foundVozilo){
-    document.getElementById('fSheetName').value = foundVozilo.toUpperCase();
+  const voziloResult = extractVoziloWithModifiers(tl);
+  if(voziloResult){
+    document.getElementById('fSheetName').value = voziloResult.fullVozilo.toUpperCase();
     document.getElementById('fSheet').classList.add('filled');
   }
 
+  // Tekst bez vozila za daljnji parse
   let textBezVozila = text;
-  if(foundVozilo){
-    textBezVozila = text.slice(0, voziloPocetakIdx) + ' ' + text.slice(voziloKrajIdx);
+  if(voziloResult){
+    textBezVozila = text.slice(0, voziloResult.startIdx) + ' ' + text.slice(voziloResult.endIdx);
   }
 
   // ── POTPISAO ─────────────────────────────────────────────
-  // Prepoznaj ODMAH čim se čuje ime potpisnika
   if(tl.includes('krešo')||tl.includes('kreso')||tl.includes('kreši')||tl.includes('kreše')||
      tl.includes('potpisao krešo')||tl.includes('potpisao kreso')){
     setSigner('Krešo');
@@ -575,11 +620,12 @@ function parseVoiceInput(rawText){
   let textZaIme = textBezVozila;
   if(rm) textZaIme = textZaIme.replace(rm[0],'');
   textZaIme = textZaIme.replace(/\d{1,2}[.\-\/]\d{1,2}(?:[.\-\/]\d{2,4})?/g,'');
-  // Ukloni "potpisao krešo/perica" iz teksta za ime
   textZaIme = textZaIme.replace(/potpisao\s+\w+/gi,'').replace(/potpisala\s+\w+/gi,'');
+  // Ukloni i boje/modifikatore vozila iz teksta za ime
+  textZaIme = textZaIme.replace(/\b(bijeli|bijela|bijelo|crni|crna|crno|sivi|siva|sivo|crveni|crvena|crveno|plavi|plava|plavo|zeleni|zelena|zeleno|srebrni|srebrna|srebrno|kombi|van|pickup)\b/gi,'');
 
   const skipWords = new Set([
-    ...foundVozilo.toLowerCase().split(' '),
+    ...(voziloResult ? voziloResult.fullVozilo.toLowerCase().split(' ') : []),
     'fiat','ducato','golf','bmw','mercedes','audi','ford','opel','toyota',
     'datum','renta','rentanja','od','do','ime','prezime','potpisao','potpisala',
     'krešo','kreso','perica','perić','za','na','u','i','s','sa','iz'
@@ -603,7 +649,7 @@ function parseVoiceInput(rawText){
     }
   }
 
-  // Velika slova (neprepoznata vlastita imena)
+  // Velika slova (vlastita imena koja nisu u listi)
   if(!ime||!prezime){
     const caps = [...textZaIme.matchAll(/\b([A-ZŠĐČĆŽ][a-zšđčćž]{1,})\b/g)]
       .map(m=>m[1])
@@ -614,22 +660,16 @@ function parseVoiceInput(rawText){
       prezime = caps[0];
   }
 
-  // Upiši u polja — ne prepisuj ako je korisnik ručno unio nešto drukčije
+  // ── UPIŠI — UVIJEK prepiši ako je voice dao novu vrijednost ──────────
+  // (ne blokiramo više ako polje već ima vrijednost)
   const imePolje  = document.getElementById('fImeVal');
   const prezPolje = document.getElementById('fPrezimeVal');
 
-  if(imeM){
-    imePolje.value = ime;
-    document.getElementById('fIme').classList.add('filled');
-  } else if(ime && !imePolje.value.trim()){
+  if(ime){
     imePolje.value = ime;
     document.getElementById('fIme').classList.add('filled');
   }
-
-  if(prezM){
-    prezPolje.value = prezime;
-    document.getElementById('fPrezime').classList.add('filled');
-  } else if(prezime && !prezPolje.value.trim()){
+  if(prezime){
     prezPolje.value = prezime;
     document.getElementById('fPrezime').classList.add('filled');
   }
