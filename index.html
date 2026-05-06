@@ -310,14 +310,50 @@ const STOP_VOZILO = new Set([
 
 // Boje i tipovi koji su dio naziva vozila
 const VOZILO_MODIFIKATORI = new Set([
-  'bijeli','bijela','bijelo','crni','crna','crno','sivi','siva','sivo',
-  'crveni','crvena','crveno','plavi','plava','plavo','zeleni','zelena','zeleno',
-  'žuti','žuta','žuto','narančasti','narančasta','srebrni','srebrna','srebrno',
-  'crno bijeli','kombi','van','pickup','karavan','limuzina','hatchback',
+  // bijela
+  'bijeli','bijela','bijelo','bieli','biela','bielo',
+  // crna
+  'crni','crna','crno',
+  // siva
+  'sivi','siva','sivo','sjeđi','sjeđa','sjeđo',
+  // crvena
+  'crveni','crvena','crveno',
+  // plava
+  'plavi','plava','plavo',
+  // zelena
+  'zeleni','zelena','zeleno',
+  // žuta
+  'žuti','žuta','žuto','zuti','zuta','zuto',
+  // narančasta
+  'narančasti','narančasta','narančasto','narancasti','narancasta',
+  // smeđa
+  'smeđi','smeđa','smeđe','smedi','smeda','smede','smedji','smedja','smedje',
+  // srebrna
+  'srebrni','srebrna','srebrno','srebreni','srebrena',
+  // bež
+  'bež','bez','beige',
+  // bordo
+  'bordo','bordо',
+  // ljubičasta
+  'ljubičasti','ljubičasta','ljubičasto',
+  // crno-bijeli / kombinacije
+  'crno bijeli','crno bijela',
+  // tipovi
+  'kombi','van','pickup','karavan','limuzina','hatchback','suv','kabriolet','coupe','coupé',
+  // verzije/motori
+  'plus','gt','gti','tdi','tsi','hdi','crdi','bluehdi','jtd','tfsi','mhev','hybrid',
+  // brojevi generacija
   '1','2','3','4','5','6','7','8','9',
-  'jedan','dva','tri','četiri','pet','šest','sedam','osam','devet',
-  'plus','gt','gti','tdi','tsi','hdi','crdi','bluehdi','jtd'
+  'jedan','dva','tri','četiri','pet','šest','sedam','osam','devet'
 ]);
+
+// Normalizacija boja — pretvara varijante u standardni oblik
+const BOJA_NORMALIZACIJA = {
+  'bieli':'bijeli','biela':'bijela','bielo':'bijelo',
+  'smedi':'smeđi','smeda':'smeđa','smede':'smeđe','smedji':'smeđi','smedja':'smeđa','smedje':'smeđe',
+  'zuti':'žuti','zuta':'žuta','zuto':'žuto',
+  'narancasti':'narančasti','narancasta':'narančasta',
+};
 
 const POZNATA_IMENA = [
   'ante','ivan','marko','mario','josip','tomislav','stjepan','nikola','luka','mateo',
@@ -503,38 +539,36 @@ function stopRecording(){
 
 function capFirst(s){ return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase(); }
 
-// ── NOVO: hvata vozilo + modifikatore iza njega ──────────────────────
+// ── Hvata vozilo + modifikatore (boja, generacija, tip) ──────────────
 function extractVoziloWithModifiers(tl) {
-  // Sortiraj po duljini (najdulje prvo) da uhvati "fiat ducato" prije "fiat"
   const sorted = [...VOZILA_BAZA].sort((a,b) => b.length - a.length);
 
   for(const v of sorted) {
     const idx = tl.indexOf(v);
     if(idx === -1) continue;
 
-    // Tekst iza vozila
     const after = tl.slice(idx + v.length).trim();
     const words = after.split(/\s+/);
 
-    // Skupi modifikatore koji direktno slijede (do prve stop-riječi ili zareza)
     const modParts = [];
     for(const w of words) {
-      const clean = w.replace(/[,\.]/g,'');
+      const clean = w.replace(/[,\.;]/g,'');
       if(!clean) continue;
       if(STOP_VOZILO.has(clean)) break;
-      if(/^\d+$/.test(clean)) { modParts.push(clean); continue; } // brojevi (golf 8)
-      if(VOZILO_MODIFIKATORI.has(clean)) { modParts.push(clean); continue; }
-      // Nepoznata riječ koja nije modifikator — stani
+      if(/^\d+$/.test(clean)) { modParts.push(clean); continue; }
+      // Normaliziraj varijantu (smeđa → smeđa, smeda → smeđa itd.)
+      const norm = BOJA_NORMALIZACIJA[clean] || clean;
+      if(VOZILO_MODIFIKATORI.has(norm)) { modParts.push(norm); continue; }
+      // Nepoznata riječ — stani
       break;
     }
 
     const fullVozilo = (v + (modParts.length ? ' ' + modParts.join(' ') : '')).trim();
-    return {
-      foundVozilo: v,
-      fullVozilo,
-      startIdx: idx,
-      endIdx: idx + v.length + (modParts.length ? 1 + modParts.join(' ').length : 0)
-    };
+    // endIdx izračunaj na bazi originalnog tl stringa
+    const endIdx = idx + v.length + (modParts.length
+      ? after.indexOf(modParts[modParts.length-1]) + modParts[modParts.length-1].length + 1
+      : 0);
+    return { foundVozilo: v, fullVozilo, startIdx: idx, endIdx };
   }
   return null;
 }
@@ -621,8 +655,8 @@ function parseVoiceInput(rawText){
   if(rm) textZaIme = textZaIme.replace(rm[0],'');
   textZaIme = textZaIme.replace(/\d{1,2}[.\-\/]\d{1,2}(?:[.\-\/]\d{2,4})?/g,'');
   textZaIme = textZaIme.replace(/potpisao\s+\w+/gi,'').replace(/potpisala\s+\w+/gi,'');
-  // Ukloni i boje/modifikatore vozila iz teksta za ime
-  textZaIme = textZaIme.replace(/\b(bijeli|bijela|bijelo|crni|crna|crno|sivi|siva|sivo|crveni|crvena|crveno|plavi|plava|plavo|zeleni|zelena|zeleno|srebrni|srebrna|srebrno|kombi|van|pickup)\b/gi,'');
+  // Ukloni boje i tipove vozila iz teksta za ime
+  textZaIme = textZaIme.replace(/\b(bijeli|bijela|bijelo|crni|crna|crno|sivi|siva|sivo|crveni|crvena|crveno|plavi|plava|plavo|zeleni|zelena|zeleno|žuti|žuta|žuto|zuti|zuta|zuto|srebrni|srebrna|srebrno|srebreni|srebrena|smeđi|smeđa|smeđe|smedi|smeda|smede|smedji|smedja|smedje|narančasti|narančasta|narancasti|narancasta|ljubičasti|ljubičasta|ljubičasto|bordo|bež|bez|beige|kombi|van|pickup|karavan|suv|kabriolet|hatchback|limuzina|gt|gti|tdi|tsi|hdi|crdi|tfsi|hybrid)\b/gi,'');
 
   const skipWords = new Set([
     ...(voziloResult ? voziloResult.fullVozilo.toLowerCase().split(' ') : []),
