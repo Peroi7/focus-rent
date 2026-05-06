@@ -23,13 +23,15 @@
   --muted2:#444;
   --success:#22c55e;
 }
-html{height:100%;overflow-x:hidden}
+html{height:100%;overflow-x:hidden;overflow-y:scroll}
 body{
   background:var(--bg);
   color:var(--text);
   font-family:'Barlow',sans-serif;
   min-height:100%;
   font-size:15px;
+  overflow-x:hidden;
+  width:100%;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
 }
 .header{
@@ -42,7 +44,7 @@ body{
 .header-logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.04em;color:var(--text);line-height:1;}
 .header-logo span{color:var(--red)}
 .header-badge{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:0.12em;color:var(--red);border:1px solid var(--red-dim);padding:3px 8px;border-radius:3px;background:var(--red-glow2);}
-.app{max-width:640px;margin:0 auto;padding:1rem 1rem 3rem}
+.app{max-width:640px;margin:0 auto;padding:1rem 1rem 3rem;overflow-x:hidden;width:100%}
 .mic-section{display:flex;flex-direction:column;align-items:center;gap:0.9rem;padding:1.5rem 0 0.5rem;}
 .mic-ring{position:relative;width:88px;height:88px}
 .mic-ring-pulse{position:absolute;inset:-10px;border-radius:50%;border:2px solid var(--red);opacity:0;}
@@ -80,7 +82,7 @@ body{
 .field{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.9rem;transition:border-color 0.2s, background 0.2s;}
 .field.full{grid-column:1/-1}
 .field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:5px;}
-.field input{background:transparent;border:none;outline:none;font-family:'Barlow',sans-serif;font-size:15px;color:var(--text);width:100%;font-weight:400;}
+.field input{background:transparent;border:none;outline:none;font-family:'Barlow',sans-serif;font-size:15px;color:var(--text);width:100%;min-width:0;font-weight:400;}
 .field input::placeholder{color:var(--muted2);font-weight:300}
 .field.filled{border-color:var(--red);background:var(--red-glow2)}
 .field-readonly input{color:var(--muted)}
@@ -101,7 +103,7 @@ body{
 .sheet-config{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;}
 .sheet-config h3{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.65rem;}
 .sheet-input-row{display:flex;gap:8px}
-.sheet-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.55rem 0.85rem;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;-webkit-appearance:none;}
+.sheet-input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.55rem 0.85rem;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;-webkit-appearance:none;}
 .sheet-input:focus{border-color:var(--red)}
 .sheet-input::placeholder{color:var(--muted2)}
 .copy-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:0.55rem 0.85rem;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.15s;font-family:'Barlow',sans-serif;-webkit-appearance:none;}
@@ -109,7 +111,7 @@ body{
 .copy-btn:active{transform:scale(0.96)}
 .script-section{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;}
 .script-section h3{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;}
-.code-block{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.85rem;font-family:'Courier New',monospace;font-size:11px;color:#f87171;overflow-x:auto;white-space:pre;line-height:1.55;margin-bottom:0.5rem;max-height:220px;overflow-y:auto;}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.85rem;font-family:'Courier New',monospace;font-size:11px;color:#f87171;overflow-x:auto;white-space:pre;line-height:1.55;margin-bottom:0.5rem;max-height:220px;overflow-y:auto;max-width:100%;}
 .log{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
 .log-header{padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:flex;justify-content:space-between;align-items:center;}
 .log-entry{padding:0.75rem 1rem;border-bottom:1px solid var(--border);font-size:13px;display:flex;gap:10px;}
@@ -292,24 +294,68 @@ const SCRIPT_CODE = `function doPost(e) {
 
 document.getElementById('scriptCode').textContent = SCRIPT_CODE;
 
-// ── Baza vozila — samo "korijeni", modifikatori se hvataju automatski ──
+// ── Fonetske zamjene — STT često piše ovako ──────────────────────────
+// Primjenjuju se NA CIJELI tekst PRIJE parsiranja
+const FONETSKE_ZAMJENE = [
+  // Ducato varijante
+  [/dukato/g,       'ducato'],
+  [/dukatu/g,       'ducato'],
+  [/ducatu/g,       'ducato'],
+  [/dukate/g,       'ducato'],
+  [/dukatar/g,      'ducato'],
+  [/dukata/g,       'ducato'],
+  [/duccato/g,      'ducato'],
+  // Fiat varijante
+  [/fijat/g,        'fiat'],
+  [/fiat/g,         'fiat'],
+  // Ford Focus — kad se kaže "ford focus" ne smije uhvatiti samo "focus"
+  [/ford fokus/g,   'ford focus'],
+  [/fokus/g,        'ford focus'],
+  // Škoda varijante
+  [/skoda/g,        'škoda'],
+  [/šcoda/g,        'škoda'],
+  // Volkswagen skraćenice
+  [/volksvagen/g,   'volkswagen'],
+  [/volks vagen/g,  'volkswagen'],
+  [/folksvagen/g,   'volkswagen'],
+  // Ostalo
+  [/citroen/g,      'citroën'],
+  [/pejo/g,         'peugeot'],
+  [/pežo/g,         'peugeot'],
+  [/rendžrover/g,   'range rover'],
+  [/mercedes benz/g,'mercedes'],
+];
+
+function normalizirajTekst(tl) {
+  let t = tl;
+  for (const [rx, zamjena] of FONETSKE_ZAMJENE) {
+    t = t.replace(rx, zamjena);
+  }
+  return t;
+}
+
+// ── Baza vozila — sortiraj po duljini da višerječni matchaju prvi ──
+// VAŽNO: "ford focus" mora biti PRIJE "ford" i PRIJE "focus"
 const VOZILA_BAZA = [
-  'fiat ducato','fiat punto','fiat',
+  'fiat ducato','fiat punto',
   'volkswagen golf','volkswagen passat','volkswagen polo','volkswagen tiguan','volkswagen touareg','volkswagen caddy',
   'vw golf','vw passat','vw polo',
+  'ford focus','ford transit','ford fiesta',
+  'ford',
   'golf','passat','polo','tiguan','touareg','caddy',
-  'bmw','mercedes','audi','toyota','honda','ford','opel',
-  'škoda','skoda','renault','peugeot','seat','citroen','citroën',
-  'octavia','fabia','leon','clio','corsa','yaris','fiesta','focus',
+  'bmw','mercedes','audi','toyota','honda','opel','fiat',
+  'škoda','renault','peugeot','seat','citroën','citroen',
+  'octavia','fabia','leon','clio','corsa','yaris','fiesta',
   'transit','sprinter','vito','master','jumper','boxer',
   'hyundai','kia','mazda','nissan','volvo','subaru','jeep','dacia',
-  'ducato','punto'
+  'ducato','punto',
+  'focus',  // samostalni "focus" — samo ako nema "ford" ispred
 ];
 
 // Riječi koje NISU dio naziva vozila (zaustavljaju hvat modifikatora)
 const STOP_VOZILO = new Set([
   'od','do','za','na','u','i','s','sa','iz','ime','prezime',
-  'potpisao','potpisala','datum','renta','rentanja','janvier',
+  'potpisao','potpisala','datum','renta','rentanja',
   'krešo','kreso','perica','perić'
 ]);
 
@@ -578,7 +624,8 @@ function extractVoziloWithModifiers(tl) {
 function parseVoiceInput(rawText){
   const text = rawText.trim();
   if(!text) return;
-  const tl = text.toLowerCase();
+  // Primijeni fonetske zamjene na cijeli tekst prije parsiranja
+  const tl = normalizirajTekst(text.toLowerCase());
 
   // ── VOZILO ──────────────────────────────────────────────
   const voziloResult = extractVoziloWithModifiers(tl);
